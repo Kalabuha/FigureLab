@@ -1,7 +1,17 @@
-﻿namespace FigureTestProject
+﻿using FigureFactory.Interfaces.TriangleInterfaces;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace FigureTestProject
 {
     public class TriangleTests
     {
+        private IServiceProvider factoryServiceProvider;
+
+        public TriangleTests()
+        {
+            factoryServiceProvider = ServiceProviderBuilder.Build();
+        }
+
         [Theory]
         //нормальный треугольник
         [InlineData(20d, 21d, 23d, 64d)]
@@ -11,9 +21,19 @@
         [InlineData(20d, -21d, 23d, null)]
         public void PerimeterComputationTest(double sideAB, double sideAC, double sideBC, double? expectedPerimeter)
         {
-            var triangle = new TriangleModel(sideAB, sideAC, sideBC);
-            var actualPerimeter = triangle.GetPerimeter();
+            var triangleCreator = factoryServiceProvider.GetRequiredService<ITriangleCreator>();
 
+            ITriangle? triangle;
+            try
+            {
+                triangle = triangleCreator.CreateOnThreeSides(sideAB, sideAC, sideBC);
+            }
+            catch (Exception)
+            {
+                triangle = null;
+            }
+
+            double? actualPerimeter = triangle?.Perimeter;
             Assert.Equal(expectedPerimeter, actualPerimeter);
         }
 
@@ -27,9 +47,19 @@
         [InlineData(10d, 0d, 10d, null)]
         public void AreaComputationTest(double sideAB, double sideAC, double sideBC, double? expectedArea)
         {
-            var triangle = new TriangleModel(sideAB, sideAC, sideBC);
-            var actualArea = triangle.GetFigureArea();
+            var triangleCreator = factoryServiceProvider.GetRequiredService<ITriangleCreator>();
 
+            ITriangle? triangle;
+            try
+            {
+                triangle = triangleCreator.CreateOnThreeSides(sideAB, sideAC, sideBC);
+            }
+            catch (Exception)
+            {
+                triangle = null;
+            }
+
+            double? actualArea = triangle?.Area;
             Assert.Equal(expectedArea, actualArea);
         }
 
@@ -45,9 +75,19 @@
         [InlineData(16d, -12d, 16d, null)]
         public void IsRightTriangleDetermineTest(double sideAB, double sideAC, double sideBC, bool? expectedIsRightTriangle)
         {
-            var triangle = new TriangleModel(sideAB, sideAC, sideBC);
-            var actualIsRightTriangle = triangle.IsRightTriangle;
+            var triangleCreator = factoryServiceProvider.GetRequiredService<ITriangleCreator>();
 
+            ITriangle? triangle;
+            try
+            {
+                triangle = triangleCreator.CreateOnThreeSides(sideAB, sideAC, sideBC);
+            }
+            catch (Exception)
+            {
+                triangle = null;
+            }
+
+            bool? actualIsRightTriangle = triangle?.IsRightTriangle;
             Assert.Equal(expectedIsRightTriangle, actualIsRightTriangle);
         }
     }

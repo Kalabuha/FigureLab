@@ -1,7 +1,17 @@
+using FigureFactory.Interfaces.CircleInterfaces;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace FigureTestProject
 {
     public class CircleTests
     {
+        private readonly IServiceProvider factoryServiceProvider;
+
+        public CircleTests()
+        {
+            factoryServiceProvider = ServiceProviderBuilder.Build();
+        }
+
         [Theory]
         //нормальный круг
         [InlineData(17d, 106.81d)]
@@ -11,13 +21,23 @@ namespace FigureTestProject
         [InlineData(-16d, null)]
         public void PerimeterComputationTest(double radius, double? expectedPerimeter)
         {
-            var circle = new CircleModel(radius);
-            var actualPerimeter = circle.GetPerimeter();
+            var circleCreator = factoryServiceProvider.GetRequiredService<ICircleCreator>();
 
-            double? actualPerimeterRound = null;
-            if (actualPerimeter.HasValue)
+            ICircle? circle;
+            try
             {
-                actualPerimeterRound = Math.Round(actualPerimeter.Value, 2);
+                circle = circleCreator.CreateAnRadius(radius);
+            }
+            catch (Exception)
+            {
+                circle = null;
+            }
+
+
+            double? actualPerimeterRound = circle?.Perimeter;
+            if (actualPerimeterRound.HasValue)
+            {
+                actualPerimeterRound = Math.Round(actualPerimeterRound.Value, 2);
             }
 
             Assert.Equal(expectedPerimeter, actualPerimeterRound);
@@ -32,13 +52,22 @@ namespace FigureTestProject
         [InlineData(-12d, null)]
         public void AreaComputationTest(double radius, double? expectedArea)
         {
-            var circle = new CircleModel(radius);
-            var actualArea = circle.GetFigureArea();
+            var circleCreator = factoryServiceProvider.GetRequiredService<ICircleCreator>();
 
-            double? actualAreaRound = null;
-            if (actualArea.HasValue)
+            ICircle? circle;
+            try
             {
-                actualAreaRound = Math.Round(actualArea.Value, 2);
+                circle = circleCreator.CreateAnRadius(radius);
+            }
+            catch (Exception)
+            {
+                circle = null;
+            }
+
+            double? actualAreaRound = circle?.Area;
+            if (actualAreaRound.HasValue)
+            {
+                actualAreaRound = Math.Round(actualAreaRound.Value, 2);
             }
 
             Assert.Equal(expectedArea, actualAreaRound);
